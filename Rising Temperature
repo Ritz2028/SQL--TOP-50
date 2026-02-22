@@ -1,0 +1,52 @@
+Rising Temperature
+Write a solution to find all dates' id with higher temperatures compared to its previous dates (yesterday).
+
+Return the result table in any order.
+
+The result format is in the following example.
+
+ 
+
+Example 1:
+
+Input: 
+Weather table:
++----+------------+-------------+
+| id | recordDate | temperature |
++----+------------+-------------+
+| 1  | 2015-01-01 | 10          |
+| 2  | 2015-01-02 | 25          |
+| 3  | 2015-01-03 | 20          |
+| 4  | 2015-01-04 | 30          |
++----+------------+-------------+
+Output: 
++----+
+| id |
++----+
+| 2  |
+| 4  |
++----+
+&&&  HERE WE ARE USING SELF JOIN   @@@@
+
+✅ Core rule of SELF JOIN (very important)
+In a self join, the ON condition must express the relationship you want to compare.
+
+❌ Why ON w1.id = w2.id is wrong
+Ask yourself:
+Does id = id represent yesterday vs today?   THERFORE NEVR USE ON PK CONDITION 
+
+For INNER JOIN, both are interchangeable{IE BOTH HE CONDITIONS WVEN IF I WRITE 
+ ON w1.temperature > w2.temperature 
+AND
+DATEDIFF(w1.recordDate, w2.recordDate) = 1 
+
+
+
+
+SQL QUERY:
+select  w1.id
+from Weather as w1
+join Weather as w2
+on   datediff(w1.recordDate ,w2.recordDate )=1
+and
+w1.temperature >w2.temperature 

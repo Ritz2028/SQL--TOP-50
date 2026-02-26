@@ -1,0 +1,100 @@
+Write a solution to report the fraction of players that logged in again on the day after the day they first logged in, rounded to 2 decimal places. In other words, you need to determine the number of players who logged in on the day immediately following their initial login, and divide it by the number of total players.
+
+The result format is in the following example.
+
+ 
+
+Example 1:
+
+Input: 
+Activity table:
++-----------+-----------+------------+--------------+
+| player_id | device_id | event_date | games_played |
++-----------+-----------+------------+--------------+
+| 1         | 2         | 2016-03-01 | 5            |
+| 1         | 2         | 2016-03-02 | 6            |
+| 2         | 3         | 2017-06-25 | 1            |
+| 3         | 1         | 2016-03-02 | 0            |
+| 3         | 4         | 2018-07-03 | 5            |
++-----------+-----------+------------+--------------+
+Output: 
++-----------+
+| fraction  |
++-----------+
+| 0.33      |
++-----------+
+Explanation: 
+Only the player with id 1 logged back in after the first day he had logged in so the answer is 1/3 = 0.33
+
+
+sql:
+# Write your MySQL query statement below
+
+select  round(count(distinct player_id)/ (select count(distinct player_id) from activity),2) as fraction
+from activity
+where(player_id,date_sub(event_date,interval 1 day)) in(
+select player_id,min(event_date) as first_login
+from activity
+group by player_id
+)
+
+
+
+@ Do I need to calculate something first before filtering?”
+
+YES → Subquery
+
+NO → Normal query
+🔑 RULE: When do we write a subquery?
+1️⃣ When the question says FIRST / MIN / MAX / EARLIEST / LATEST
+
+Examples:
+first login of each user
+earliest order per customer
+highest salary in each department
+👉 You must aggregate first, so you need a subquery or CTE.
+✔ Examples:
+
+MIN(date)
+MAX(salary)
+2️⃣ When a condition depends on an aggregate result
+You cannot do this directly:
+❌
+WHERE event_date = MIN(event_date)
+So you write:
+WHERE event_date IN (
+    SELECT MIN(event_date)
+    FROM activity
+    GROUP BY player_id
+)
+3️⃣ When the condition compares a row with a derived value
+Your case:
+“Check if a player logged in the day after their first login”
+That “first login” is not in the table — it must be computed first.
+👉 Subquery required.
+
+4️⃣ When the problem says “based on each X”
+
+Keywords:
+for each customer
+for each player
+per department
+per month
+That usually means:
+
+GROUP BY → subquery → outer logic
+5️⃣ When filtering uses a calculated table
+
+Patterns like:
+
+IN (subquery)
+= (subquery)
+EXISTS (subquery)
+
+Example:
+
+customers who ordered again
+
+players who returned
+
+employees earning more than avg salary
